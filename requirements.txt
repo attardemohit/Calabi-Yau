@@ -1,0 +1,29 @@
+# Core ML Libraries
+torch>=2.0.0
+tensorflow>=2.15.0  # Optional alternative to PyTorch
+numpy>=1.24.0,<2.0  # Pin to NumPy 1.x for compatibility
+scikit-learn>=1.3.0
+
+# Data Processing
+pandas>=2.0.0
+scipy>=1.11.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+plotly>=5.14.0
+
+# Model Interpretation
+shap>=0.42.0,<0.50.0  # Compatible with NumPy 1.x
+
+# Utilities
+tqdm>=4.65.0
+pyyaml>=6.0
+jupyter>=1.0.0
+ipykernel>=6.23.0
+
+# Optional: For symbolic regression analysis
+# pysr>=0.15.0
+
+# Optional: For advanced visualization
+# umap-learn>=0.5.3
