@@ -34,6 +34,12 @@ cd Calabi-Yau
 pip install -r requirements.txt
 ```
 
+### Advanced Usage
+- **GNNs:** Represent configuration matrices as graphs and train `CYGraphNet` in `src/gnn_models.py`.
+- **Bayesian Uncertainty:** Use `BayesianEnsemble` in `src/advanced_models.py` for predictive distributions.
+- **Symbolic Regression:** Run `discover_cy_physics_equations` to fit compact formulas to data (PySR).
+- **Multi-task:** Use `MultiTaskCYNet` with `MultiTaskLoss` to jointly predict (h11, h21, χ) while enforcing physics constraints.
+
 **Note**: The project uses NumPy 1.x for compatibility. If you encounter issues, run:
 ```bash
 pip install "numpy<2.0" --force-reinstall
@@ -51,6 +57,43 @@ python run_experiment.py --task regression --epochs 100
 # ✅ Evaluates and visualizes results
 # ✅ Final RMSE: ~6.8, Correlation: ~0.75
 ```
+
+### 2b. Advanced Pipeline (Optional)
+
+The advanced pipeline uses real CICY data, uncertainty quantification, GNNs, symbolic discovery, and multi-task learning.
+
+```
+# Install optional dependencies (see note below)
+pip install pyro-ppl pysr
+# For PyTorch Geometric (PyG), please follow: https://pytorch-geometric.readthedocs.io
+
+# Run the advanced pipeline
+python run_advanced_pipeline.py
+
+# Or run individual components
+python src/train_real_data.py --target h11_prediction --epochs 50
+python src/train_real_data.py --target mirror_symmetry --epochs 50
+```
+
+#### Download datasets (CICY, 4-folds, Reflexive Polytopes)
+
+Use the provided script to fetch datasets into `dataset/`:
+
+```bash
+chmod +x scripts/download_datasets.sh
+# Uses default authoritative URLs; override via env if needed
+scripts/download_datasets.sh --data-dir dataset --skip-existing
+
+# Verify specific links first (optional)
+curl -I "https://www-thphys.physics.ox.ac.uk/projects/CalabiYau/cicylist/cicylist.txt"
+curl -I "https://www-thphys.physics.ox.ac.uk/projects/CalabiYau/Cicy4folds/cicy4folds.txt.zip"
+curl -I "http://hep.itp.tuwien.ac.at/%7Ekreuzer/pub/K3/RefPoly.d3"
+```
+
+Notes:
+- `cicy4folds.txt` is provided as a `.zip` and the script auto-extracts it.
+- You can set mirrors via env: `CICY_LIST_URLS`, `CICY_4FOLDS_URLS`, `REF_POLY_D3_URLS`.
+- Optional checksum envs: `CICY_LIST_MD5`, `CICY_4FOLDS_MD5`, `REF_POLY_D3_MD5`.
 
 ### 3. Alternative Methods
 
@@ -85,9 +128,15 @@ Calabi-Yau/
 │   ├── data_generator.py     # Synthetic data generation
 │   ├── models.py             # Neural network architectures
 │   ├── train.py              # Training script
-│   └── evaluate.py           # Evaluation and visualization
-├── notebooks/                # Jupyter notebooks
+│   ├── evaluate.py           # Evaluation and visualization
+│   ├── cicy_loader.py        # Real CICY dataset parser and exporters
+│   ├── gnn_models.py         # Graph encoders + GNNs for configuration matrices
+│   ├── advanced_models.py    # Bayesian NNs (Pyro) + Symbolic Regression (PySR)
+│   ├── multitask_learning.py # Multi-task (h11, h21, χ) with physics constraints
+│   └── models.py             # Neural network architectures
 │   └── calabi_yau_experiment.ipynb
+├── scripts/                  # Utility scripts
+│   └── download_datasets.sh  # Reproducible dataset downloader
 ├── data/                     # Generated datasets
 ├── models/                   # Saved model checkpoints
 ├── results/                  # Training results and plots
@@ -122,6 +171,11 @@ Calabi-Yau/
 - **Training Time**: ~20 seconds
 - **Model Size**: 12,225 parameters
 
+**Real CICY (h11 prediction):**
+- **R²**: ~0.94
+- **RMSE**: ~0.57
+- **Uncertainty**: MC-Dropout mean ~0.70 (error bars available)
+
 **Classification Task:**
 - **Accuracy**: ~85% for 3-class gauge group prediction
 - **F1 Score**: 0.83 (weighted average)
@@ -130,6 +184,12 @@ Calabi-Yau/
 - **Most Influential Feature**: h^{1,1} - h^{2,1} (Hodge number difference)
 - **Training Stability**: Achieved with feature normalization (standardization)
 - **Convergence**: Early stopping typically triggers around epoch 20-30
+
+### Advanced Stages Implemented
+- **Stage 2: Graph Encoder + GNNs** for CY configuration matrices (bipartite graphs of projective spaces and polynomials)
+- **Stage 3: Bayesian Ensemble** with epistemic + aleatoric uncertainty (Pyro)
+- **Stage 4: Symbolic Discovery** using PySR (Pareto-optimal equations)
+- **Stage 5: Multi-task CY Learning** joint (h11, h21, χ) with mirror symmetry and χ = 2(h11−h21) constraints
 
 ## 🔬 Physical Interpretation
 
@@ -233,14 +293,22 @@ print(f"RMSE: {metrics['rmse']:.2f}, R²: {metrics['r2']:.3f}")
 
 2. **High Loss Values During Training**
    - Ensure data normalization is applied (automatic in current version)
-   - Check that synthetic data generation uses normalized ranges
+- Check that synthetic data generation uses normalized ranges
+   - When using CICY data, standardize features (done in scripts)
 
 3. **JSON Serialization Error**
    - Fixed in current version - converts numpy types to Python types
 
 4. **Memory Issues with Large Datasets**
    - Reduce batch size: `--batch_size 16`
-   - Use fewer epochs for initial testing
+- Use fewer epochs for initial testing
+   - For PyG, use smaller graphs or accumulate gradients
+
+5. **Installing PyTorch Geometric (PyG)**
+   - Follow official guide to match your torch/cuda versions:
+     https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html
+   - Example CPU-only (may vary):
+     `pip install torch-geometric torch-scatter torch-sparse`
 
 ## 🤝 Contributing
 

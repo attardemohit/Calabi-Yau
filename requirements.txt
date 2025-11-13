@@ -18,12 +18,19 @@ shap>=0.42.0,<0.50.0  # Compatible with NumPy 1.x
 
 # Utilities
 tqdm>=4.65.0
-pyyaml>=6.0
 jupyter>=1.0.0
 ipykernel>=6.23.0
 
-# Optional: For symbolic regression analysis
-# pysr>=0.15.0
+# Graph Neural Networks
+torch-geometric>=2.3.0
+torch-scatter>=2.1.0
+torch-sparse>=0.6.17
+
+# Symbolic Regression
+pysr>=0.15.0
+
+# Bayesian Methods
+pyro-ppl>=1.8.0
 
 # Optional: For advanced visualization
 # umap-learn>=0.5.3
