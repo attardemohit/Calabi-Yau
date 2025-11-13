@@ -21,7 +21,6 @@ This project implements a neural network pipeline to learn the complex mapping b
 ### Prerequisites
 - Python 3.9+
 - pip package manager
-- ~500MB free disk space
 
 ### 1. Installation
 
